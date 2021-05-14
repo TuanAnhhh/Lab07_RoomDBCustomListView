@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     Button btnSave;
     Button btnCancel;
     EditText tvCity;
+    private HandleOnClick onDeleteListener;
+    private HandleOnClick onEditListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,17 +37,29 @@ public class MainActivity extends AppCompatActivity {
                 .allowMainThreadQueries()
                 .build();
         cityDao = db1.cityDao();
-        listCity = cityDao.getAll();
-
         lvCity = findViewById(R.id.lvCitys);
-        mAdapter = new CityAdapter(listCity);
-        lvCity.setAdapter(mAdapter);
+
+        lvCity.setAdapter(new CityAdapter(this,cityDao.getAll(), R.layout.item,onEditListener, onDeleteListener));
 
         btnSave = findViewById(R.id.btnSave);
         btnCancel = findViewById(R.id.btnCancel);
         tvCity  = findViewById(R.id.etVisit);
     }
     public void handle(){
+        onDeleteListener = id -> {
+            cityDao.delete(cityDao.getById(id));
+            lvCity.setAdapter(new CityAdapter(this,cityDao.getAll(), R.layout.item,onEditListener, onDeleteListener));
+
+        };
+
+        onEditListener = id -> {
+            City city  = cityDao.getById(id);
+            tvCity.setText(city.getCity());
+
+        };
+
+
+
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,8 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
                 listCity = cityDao.getAll();
 
-                mAdapter = new CityAdapter(listCity);
-                lvCity.setAdapter(mAdapter);
+                lvCity.setAdapter(new CityAdapter(view.getContext(),cityDao.getAll(), R.layout.item,onEditListener, onDeleteListener));
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {

@@ -12,7 +12,8 @@ public interface CityDao {
     @Query("SELECT * FROM City")
     List<City> getAll();
 
-
+    @Query("SELECT * FROM City WHERE id = :id ")
+    City getById(Integer id);
     @Insert
     void insertAll(City... city);
     @Delete
